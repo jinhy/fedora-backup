@@ -1,0 +1,9 @@
+nginx: strace -c -f /sbin/nginx
+httpd: starce -c -f /sbin/httpd
+lighttpd: strace -c -f /sbin/lighttpd -f /etc/lighttpd/lighttpd.conf
+
+ab-syscall:strace -c -f ab -n 1000 -c 100 http://localhost/test.html
+
+memcached-start: memcached -d -c 10240 -m 512 -u root
+memcached-syscall:strace -c -f memcached -d -c 10240 -m 512 -u root    --> memcached-test
+memcached-test: memtier_benchmark -s 127.0.0.1 -p 11211 -P memcache_text --test-time=5

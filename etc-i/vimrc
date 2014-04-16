@@ -1,0 +1,95 @@
+if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
+   set fileencodings=ucs-bom,utf-8,latin1
+endif
+
+set nocompatible	" Use Vim defaults (much better!)
+set bs=indent,eol,start		" allow backspacing over everything in insert mode
+"set ai			" always set autoindenting on
+"set backup		" keep a backup file
+set viminfo='20,\"50	" read/write a .viminfo file, don't store more
+			" than 50 lines of registers
+set history=50		" keep 50 lines of command line history
+set ruler		" show the cursor position all the time
+
+" Only do this part when compiled with support for autocommands
+if has("autocmd")
+  augroup fedora
+  autocmd!
+  " In text files, always limit the width of text to 78 characters
+  " autocmd BufRead *.txt set tw=78
+  " When editing a file, always jump to the last cursor position
+  autocmd BufReadPost *
+  \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+  \   exe "normal! g'\"" |
+  \ endif
+  " don't write swapfile on most commonly used directories for NFS mounts or USB sticks
+  autocmd BufNewFile,BufReadPre /media/*,/run/media/*,/mnt/* set directory=~/tmp,/var/tmp,/tmp
+  " start with spec file template
+  autocmd BufNewFile *.spec 0r /usr/share/vim/vimfiles/template.spec
+  augroup END
+endif
+
+if has("cscope") && filereadable("/usr/bin/cscope")
+   set csprg=/usr/bin/cscope
+   set csto=0
+   set cst
+   set nocsverb
+   " add any database in current directory
+   if filereadable("cscope.out")
+      cs add $PWD/cscope.out
+   " else add database pointed to by environment
+   elseif $CSCOPE_DB != ""
+      cs add $CSCOPE_DB
+   endif
+   set csverb
+endif
+
+" Switch syntax highlighting on, when the terminal has colors
+" Also switch on highlighting the last used search pattern.
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+endif
+
+filetype plugin on
+
+if &term=="xterm"
+     set t_Co=8
+     set t_Sb=[4%dm
+     set t_Sf=[3%dm
+endif
+
+" Don't wake up system with blinking cursor:
+" http://www.linuxpowertop.org/known.php
+let &guicursor = &guicursor . ",a:blinkon0"
+set number " 显示行号
+set cursorline " 突出显示当前行
+set tabstop=4 " 设定 tab 长度为 4
+set nobackup " 覆盖文件时不备份
+set incsearch " 输入搜索内容时就显示搜索结果
+set noerrorbells " 关闭错误信息响铃
+set smartindent " 开启新行时使用智能自动缩进
+set laststatus=2 " 显示状态栏 (默认值为 1, 无法显示状态栏)
+set statusline=\ %<%F[%1*%M%*%n%R%H]%=\ %y\ %0(%{&fileformat}\ %{&encoding}\ %c:%l/%L%)\ 
+" 设置在状态行显示的信息
+set foldenable " 开始折叠
+set foldcolumn=0 " 设置折叠区域的宽度
+setlocal foldlevel=1 " 设置折叠层数为
+set foldmethod=manual   " 手动折叠
+nnoremap <space> @=((foldclosed(line('.')) < 0) ? 'zc' : 'zo')<CR>
+" 用空格键来开关折叠
+set ruler " 打开状态栏标尺
+filetype indent on      "针对不同的文件类型采用不同的缩进格式 
+
+syntax on           " 语法高亮  
+autocmd InsertLeave * se nocul  " 用浅色高亮当前行  
+autocmd InsertEnter * se cul    " 用浅色高亮当前行 
+"colorscheme murphy
+"" 设置当文件被改动时自动载入
+set autoread
+" quickfix模式
+" autocmd FileType c,cpp map <buffer> <leader><space> :w<cr>:make<cr>
+" "代码补全 
+ set completeopt=preview,menu 
+ "set expandtab
+ let g:indent_guides_guide_size=1 
